@@ -4,31 +4,48 @@ import sys
 import os
 sys.path.append(os.path.abspath("SO_site-packages"))
 
+#Imports
 import pyperclip
 from Tkinter import Tk
 
+
+#login stuff
 loggedin = False
+loginSaved = False
 if (os.path.isfile("login.txt")) :
+	loginSaved = True
+else:
+	print False
+
+if loginSaved:
+	print "Logged in.\nUser:"
+	with open("login.txt") as f:
+		lines = f.readlines()
+ 		user =  lines[0].strip()
+ 		userid = lines[1]
   
 if loggedin==False:	
-  user = raw_input("Please enter username: ")
-  userid = raw_input("Please enter user id: ")
-  conn2 = MySQLdb.connect(host= "sql5.freesqldatabase.com",
+	if loginSaved == False:
+ 		user = raw_input("Please enter username: ")
+ 		userid = raw_input("Please enter user id: ")
+
+ 	conn2 = MySQLdb.connect(host= "sql5.freesqldatabase.com",
 			user="sql5128478",
 			passwd="KmRD1fpZdL",
 			db="sql5128478")
-  x1 = conn2.cursor()
-  try:
-    x1.execute("""SELECT user FROM user WHERE id = %s""", (userid))
-    userdata = x1.fetchone()
-    print userdata[0]
-    if user == userdata[0]:
-      loggedin = True
+ 	x1 = conn2.cursor()
+ 	
+ 	try:
+		x1.execute("""SELECT user FROM user WHERE id = %s""", (userid))
+		userdata = x1.fetchone()
+		if user == userdata[0]:
+ 		   	print "Authentication successful!"
+ 		   	loggedin = True
  
-  except:
-   conn2.rollback()
+	except:
+		conn2.rollback()
   
-  
+#Listener for clipboard
 recent_value = ""
 while loggedin:
 	tmp_value = pyperclip.paste()
@@ -51,6 +68,7 @@ while loggedin:
 		except:
 			conn.rollback()
 
+	#Listener for database change
 	try:
 		conn1 = MySQLdb.connect(host= "sql5.freesqldatabase.com",
 			user="sql5128478",
